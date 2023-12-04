@@ -1,0 +1,82 @@
+#include <iostream>
+#include <exception>
+#include <string>
+using namespace std;
+class UserException : public exception {
+    private:
+        string msg; 
+    public:
+       
+        UserException (string m) {
+            msg = m;
+        }
+       
+        virtual const char* what () const throw () {
+            return msg.c_str ();
+        }
+};
+
+
+class User {
+    protected:
+        int age; 
+        int income;
+        string city; 
+        bool vehicle; 
+    public:
+       
+        User (int a, int i, string c, bool v) {
+            age = a;
+            income = i;
+            city = c;
+            vehicle = v;
+        }
+        
+        virtual void check () {
+            // check age
+            if (age < 18 || age > 55) {
+                throw UserException ("Invalid age: " + to_string (age));
+            }
+          
+            if (income < 50000 || income > 100000) {
+                throw UserException ("Invalid income: " + to_string (income));
+            }
+            
+            if (city != "Pune" && city != "Mumbai" && city != "Bangalore" && city != "Chennai") {
+                throw UserException ("Invalid city: " + city);
+            }if (!vehicle) {
+                throw UserException ("User does not have a 4-wheeler");
+            }
+        }
+};
+
+
+class PremiumUser : public User {
+    public:
+      
+        PremiumUser (int a, int i, string c, bool v) : User (a, i, c, v) {}
+       
+        void check () override {
+          
+            User::check ();
+           
+            if (income < 75000) {
+                throw UserException ("Premium user must have an income of at least Rs. 75,000");
+            }
+        }
+};
+
+
+int main () {
+    User* u;
+    u = new User (25, 60000, "Pune", true);
+    try {
+        u->check ();
+        cout << "User is valid\n";
+    }
+    catch (UserException& e) {
+        cout << "User is invalid: " << e.what () << "\n";
+    }
+    delete u;
+    return 0;
+}
